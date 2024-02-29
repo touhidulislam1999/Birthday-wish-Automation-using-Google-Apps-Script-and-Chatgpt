@@ -23,6 +23,24 @@ function importContacts() {
     if(name==="") continue;
     var emails = contact.getEmails();
     var birthdate = contact.getDates();
+   // Write up to 3 emails
+   var gotmail = 0, gotbday = 0;
+    for (var j = 0; j < Math.min(emails.length, 3); j++) {
+      var email = emails[j].getAddress();
+      if(email==="") continue;
+      gotmail = 1;
+    }
+
+    // Write birthdate if available
+    for (var l = 0; l < birthdate.length; l++) {
+      var bdate = birthdate[l].getMonth();
+      if(bdate==="") continue;
+      gotbday = 1;
+    }
+
+    if(gotmail===0 || gotbday===0) continue;
+    if(name==="") continue;
+
 
     // Write the contact details to the sheet
     sheet.getRange(cnt + 2, 1).setValue(name);
