@@ -1,0 +1,43 @@
+function importContacts() {
+  // Open the current sheet
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+  // Clear existing data in the sheet
+  sheet.clear();
+
+  // Get the user's contacts
+  var contacts = ContactsApp.getContacts();
+
+  // Write the headers to the sheet
+  sheet.getRange(1, 1).setValue("Name");
+  sheet.getRange(1, 2).setValue("Email 1");
+  sheet.getRange(1, 3).setValue("Email 2");
+  sheet.getRange(1, 4).setValue("Email 3");
+  sheet.getRange(1, 5).setValue("Birthdate");
+
+  // Write the contacts to the sheet
+  var cnt = 0;
+  for (var i = 0; i < contacts.length; i++) {
+    var contact = contacts[i];
+    var name = contact.getFullName();
+    if(name==="") continue;
+    var emails = contact.getEmails();
+    var birthdate = contact.getDates();
+
+    // Write the contact details to the sheet
+    sheet.getRange(cnt + 2, 1).setValue(name);
+
+    // Write up to 3 emails
+    for (var j = 0; j < Math.min(emails.length, 3); j++) {
+      var email = emails[j].getAddress();
+      sheet.getRange(cnt + 2, j + 2).setValue(email);
+    }
+
+    // Write birthdate if available
+    for (var l = 0; l < birthdate.length; l++) {
+      var bdate = birthdate[l].getMonth() + "/" + birthdate[l].getDay() + "/" + (1900);
+      sheet.getRange(cnt + 2, 5).setValue(bdate);
+    }
+    cnt++;
+  }
+}

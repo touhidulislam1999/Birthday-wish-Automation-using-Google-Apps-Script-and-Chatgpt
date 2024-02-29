@@ -1,0 +1,90 @@
+function sendBirthdayGreetings() {
+  // Open the current sheet
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+  // Get today's date
+  var today = new Date();
+  var todayMonth = today.getMonth() + 1;
+  var todayDay = today.getDate();
+
+  // Iterate through the contacts in the sheet
+  var lastRow = sheet.getLastRow();
+  for (var i = 2; i <= lastRow; i++) {
+    var nameCell = sheet.getRange(i, 1); // Assuming name is in column A
+    var birthdateCell = sheet.getRange(i, 5); // Assuming birthdate is in column E
+
+    if (birthdateCell.getValue() !== "") {
+      var birthdate = new Date(birthdateCell.getValue());
+
+      // Check if birth year is null, use the current year
+      var birthdateYear = birthdate.getFullYear();
+      if (isNaN(birthdateYear)) {
+        birthdate.setFullYear(today.getFullYear());
+      }
+
+      var birthdateMonth = birthdate.getMonth() + 1;
+      var birthdateDay = birthdate.getDate();
+
+      // Check if it's the contact's birthday
+      if (todayMonth === birthdateMonth && todayDay === birthdateDay) {
+        // Loop through email columns (B, C, D in this example)
+        for (var j = 2; j <= 4; j++) {
+          var email = sheet.getRange(i, j).getValue(); // Assuming email is in column B, C, D
+          // Send birthday greeting email for each email address
+          if (email != "") {
+            var subject = "Happy Birthday!";
+            var recipientName = nameCell.getValue();
+
+            var body=`
+                       <div style="text-align: center; font-family: Georgia, serif;">
+                       <h1 style="font-size: 40px"><i>Dear ${recipientName},</i></h1>
+                       <h1 style="color: #FF1493; font-size: 30px"><i>Happy Birthday!</i></h1>
+                       <p style="font-size: 18px">${message()}</p></div>`
+                       
+            // var body=`
+            //           <div style="text-align: center; font-family: Georgia, serif;">
+            //           <h1 style="font-size: 40px"><i>Dear ${recipientName},</i></h1>
+            //           <h1 style="color: #FF1493; font-size: 30px"><i>Happy Birthday!</i></h1>
+            //           <p style="font-size: 18px">May your day be a kaleidoscope of joy, sprinkled with laughter, wrapped in love, and topped with endless adventures. Here's to making this year as vibrant and extraordinary as you are! 🎉🎂</p></div>`;
+            var body_2=`
+                        <div style="test-align: center; font-family: Georgia,serif;"
+                        <p><strong><i><a href="https://touhidul.com/">Touhidul Islam</a></i></strong></p></div>`;
+            // Send email
+            MailApp.sendEmail({
+              to: email,
+              subject: subject,
+              htmlBody: body+body_2
+            });
+          }
+        }
+      }
+    }
+  }
+}
+function message() 
+{
+  var apiKey = 'PLACE YOUR API TOKEN HERE';
+  var url = 'https://api.openai.com/v1/chat/completions';
+  var options = {
+    'method' : 'post',
+    'headers': {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + apiKey
+    },
+    'payload' : JSON.stringify({
+      'messages': [
+        {"role": "system", "content": "Give me a short birthday wish"},
+        // {"role": "user", "content": "Who won the world series in  2020?"},
+        // {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in  2020."},
+        // {"role": "user", "content": "Where was it played?"}
+      ],
+      'model': "gpt-3.5-turbo"
+    })
+  };
+
+  var response = UrlFetchApp.fetch(url, options);
+  var json = JSON.parse(response.getContentText());
+  return json.choices[0].message.content
+  //Logger.log(json.choices[0].message.content);
+}
+
