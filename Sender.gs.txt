@@ -35,25 +35,30 @@ function sendBirthdayGreetings() {
             var subject = "Happy Birthday!";
             var recipientName = nameCell.getValue();
 
-            var body=`
-                       <div style="text-align: center; font-family: Georgia, serif;">
-                       <h1 style="font-size: 40px"><i>Dear ${recipientName},</i></h1>
-                       <h1 style="color: #FF1493; font-size: 30px"><i>Happy Birthday!</i></h1>
-                       <p style="font-size: 18px">${message()}</p></div>`
-                       
-            // var body=`
+            //var body=`
             //           <div style="text-align: center; font-family: Georgia, serif;">
             //           <h1 style="font-size: 40px"><i>Dear ${recipientName},</i></h1>
             //           <h1 style="color: #FF1493; font-size: 30px"><i>Happy Birthday!</i></h1>
-            //           <p style="font-size: 18px">May your day be a kaleidoscope of joy, sprinkled with laughter, wrapped in love, and topped with endless adventures. Here's to making this year as vibrant and extraordinary as you are! 🎉🎂</p></div>`;
-            var body_2=`
-                        <div style="test-align: center; font-family: Georgia,serif;"
-                        <p><strong><i><a href="https://touhidul.com/">Touhidul Islam</a></i></strong></p></div>`;
+            //           <p style="font-size: 18px">${message()}</p></div>`
+                       
+             var body=`
+                      <div style="text-align: center; font-family: Georgia, serif;">
+                        <h1 style="font-size: 40px"><i>Dear ${recipientName},</i></h1>
+                        <h1 style="color: #FF1493; font-size: 30px"><i>Happy Birthday!</i></h1>
+                        <p style="font-size: 18px">May your day be a kaleidoscope of joy, sprinkled with laughter, wrapped in love, and topped with endless adventures. Here's to making this year as vibrant and extraordinary as you are! 🎉🎂</p>
+                      </div>
+                      <div style="text-align: left; font-family: Georgia, serif; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">
+                        <p style="margin: 0; font-size: 16px; font-weight: bold;"><a href="https://touhidul.com/">Touhidul Islam</a></p>
+                        <p style="margin: 0; font-size: 14px;">B.Sc in Electrical and Electronic Engineering</p>
+                        <p style="margin: 0; font-size: 14px;">Islamic University of Technology (IUT), Gazipur-1704, Bangladesh</p>
+                      </div>
+                       `;
+  
             // Send email
             MailApp.sendEmail({
               to: email,
               subject: subject,
-              htmlBody: body+body_2
+              htmlBody: body
             });
           }
         }
@@ -61,6 +66,8 @@ function sendBirthdayGreetings() {
     }
   }
 }
+
+
 function message() 
 {
   var apiKey = 'PLACE YOUR API TOKEN HERE';
