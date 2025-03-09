@@ -1,61 +1,59 @@
-function importContacts() {
+function importContacts() 
+{
   // Open the current sheet
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
   // Clear existing data in the sheet
   sheet.clear();
 
-  // Get the user's contacts
-  var contacts = ContactsApp.getContacts();
-
   // Write the headers to the sheet
-  sheet.getRange(1, 1).setValue("Name");
-  sheet.getRange(1, 2).setValue("Email 1");
-  sheet.getRange(1, 3).setValue("Email 2");
-  sheet.getRange(1, 4).setValue("Email 3");
-  sheet.getRange(1, 5).setValue("Birthdate");
+  var headers = ["Name", "Email 1", "Email 2", "Email 3", "Birthdate"];
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
 
-  // Write the contacts to the sheet
-  var cnt = 0;
-  for (var i = 0; i < contacts.length; i++) {
-    var contact = contacts[i];
-    var name = contact.getFullName();
-    if(name==="") continue;
-    var emails = contact.getEmails();
-    var birthdate = contact.getDates();
-   // Write up to 3 emails
-   var gotmail = 0, gotbday = 0;
-    for (var j = 0; j < Math.min(emails.length, 3); j++) {
-      var email = emails[j].getAddress();
-      if(email==="") continue;
-      gotmail = 1;
+  // Format headers (bold and center)
+  var headerRange = sheet.getRange(1, 1, 1, headers.length);
+  headerRange.setFontWeight("bold");  // Make text bold
+  headerRange.setHorizontalAlignment("center");  // Center align text
+
+
+  let cnt = 0;
+  let pageToken = null;
+  do {
+    let response = People.People.Connections.list('people/me', 
+    {
+      personFields: 'names,emailAddresses,birthdays',
+      pageSize: 100,
+      pageToken: pageToken
+    });
+
+    let contacts = response.connections;
+    
+    for( let i =0; i < contacts.length; i++){
+      let contact = contacts[i];
+      let name = contact.names ? contact.names[0].displayName : '';
+      let emails = contact.emailAddresses || [];
+      let birthdays = contact.birthdays || [];
+    
+      // Check if name,email or birthday is empty then skip.
+      if (name === '' || emails.length === 0 || birthdays.length === 0) continue;
+
+      // Write the contact details to the sheet
+      sheet.getRange(cnt + 2, 1).setValue(name);
+
+      // Write up to 3 emails
+      for (let j = 0; j < Math.min(emails.length, 3); j++) {
+        let email = emails[j].value;
+        sheet.getRange(cnt + 2, j + 2).setValue(email);
+      }
+
+      // Write birthdate if available
+      let bdate = birthdays[0].date;
+      let formattedDate = `${bdate.month}/${bdate.day}/${bdate.year || 1900}`;
+      sheet.getRange(cnt + 2, 5).setValue(formattedDate);
+    
+      // update counter
+      cnt++;
     }
-
-    // Write birthdate if available
-    for (var l = 0; l < birthdate.length; l++) {
-      var bdate = birthdate[l].getMonth();
-      if(bdate==="") continue;
-      gotbday = 1;
-    }
-
-    if(gotmail===0 || gotbday===0) continue;
-    if(name==="") continue;
-
-
-    // Write the contact details to the sheet
-    sheet.getRange(cnt + 2, 1).setValue(name);
-
-    // Write up to 3 emails
-    for (var j = 0; j < Math.min(emails.length, 3); j++) {
-      var email = emails[j].getAddress();
-      sheet.getRange(cnt + 2, j + 2).setValue(email);
-    }
-
-    // Write birthdate if available
-    for (var l = 0; l < birthdate.length; l++) {
-      var bdate = birthdate[l].getMonth() + "/" + birthdate[l].getDay() + "/" + (1900);
-      sheet.getRange(cnt + 2, 5).setValue(bdate);
-    }
-    cnt++;
-  }
+    pageToken = response.nextPageToken; 
+  } while (pageToken);
 }
